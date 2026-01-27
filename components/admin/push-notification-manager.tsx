@@ -13,6 +13,21 @@ import {
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
+function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
 export function PushNotificationManager() {
     const [showPrompt, setShowPrompt] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -40,15 +55,18 @@ export function PushNotificationManager() {
                 throw new Error('Permission not granted')
             }
 
-            // 2. Register service worker
-            const registration = await navigator.serviceWorker.register('/sw.js', {
+            // 2. Register and wait for service worker
+            await navigator.serviceWorker.register('/sw.js', {
                 scope: '/'
             })
+
+            // Ensure it's active before subscribing
+            const registration = await navigator.serviceWorker.ready;
 
             // 3. Subscribe to push manager
             const subscribeOptions = {
                 userVisibleOnly: true,
-                applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+                applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
             }
 
             const subscription = await registration.pushManager.subscribe(subscribeOptions)
