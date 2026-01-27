@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import { createClient } from '@supabase/supabase-js'
+import { getAdminSettings } from './supabase-api'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -22,6 +23,12 @@ export async function sendPushNotification(payload: {
     tag?: string
 }) {
     try {
+        // 0. Check global setting
+        const settings = await getAdminSettings()
+        if (settings.push_notifications_enabled !== "true") {
+            return { message: 'Push notifications are globally disabled in settings' }
+        }
+
         // 1. Fetch all subscriptions
         const { data: subscriptions, error } = await supabase
             .from('push_subscriptions')

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { getAdminSettings } from "@/lib/supabase-api"
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -33,17 +34,27 @@ export function PushNotificationManager() {
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        // Only run on client and if supported
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-            return
+        async function checkSettings() {
+            // 1. Only run on client and if supported
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                return
+            }
+
+            // 2. Fetch global setting
+            const adminSettings = await getAdminSettings()
+            if (adminSettings.push_notifications_enabled !== "true") {
+                return
+            }
+
+            // 3. Check current permission
+            if (Notification.permission === 'default') {
+                // Wait a bit before showing to not overwhelm the user immediately on load
+                const timer = setTimeout(() => setShowPrompt(true), 3000)
+                return () => clearTimeout(timer)
+            }
         }
 
-        // Check current permission
-        if (Notification.permission === 'default') {
-            // Wait a bit before showing to not overwhelm the user immediately on load
-            const timer = setTimeout(() => setShowPrompt(true), 3000)
-            return () => clearTimeout(timer)
-        }
+        checkSettings()
     }, [])
 
     async function subscribeToPush() {

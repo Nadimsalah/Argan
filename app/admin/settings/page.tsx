@@ -5,6 +5,7 @@ import { Save, Loader2, RotateCcw, Globe, Bell, Mail, Shield, Smartphone } from 
 import { toast } from "sonner"
 import { getAdminSettings, updateAdminSettings } from "@/lib/supabase-api"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
+import { Switch } from "@/components/ui/switch"
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState<Record<string, string>>({})
@@ -263,6 +264,35 @@ export default function SettingsPage() {
                                         placeholder="••••••"
                                     />
                                     <p className="text-[10px] text-muted-foreground mt-1 ml-1">used for dashboard entry verification</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Notifications Section */}
+                        <div className="bg-white/5 border border-white/5 rounded-3xl p-6 space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                    <Bell className="w-5 h-5 text-primary" />
+                                </div>
+                                <h2 className="text-lg font-bold">System Notifications</h2>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/5">
+                                    <div className="space-y-0.5">
+                                        <label className="text-sm font-semibold text-foreground">Mobile Push Notifications</label>
+                                        <p className="text-xs text-muted-foreground">Receive real-time alerts for new orders on your mobile device.</p>
+                                    </div>
+                                    <Switch
+                                        checked={settings.push_notifications_enabled === "true"}
+                                        onCheckedChange={(checked) => handleChange("push_notifications_enabled", checked ? "true" : "false")}
+                                    />
+                                </div>
+
+                                <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                                    <p className="text-[10px] text-yellow-500 font-medium leading-normal">
+                                        Note: Enabling this will prompt admin users for notification permission upon entering the dashboard.
+                                    </p>
                                 </div>
                             </div>
                         </div>
