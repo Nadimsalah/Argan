@@ -15,7 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import {
   Search,
   ShoppingBag,
@@ -378,10 +378,10 @@ export default function HomePage() {
     categories.length > 0
       ? categories
       : (['face', 'hair', 'body', 'gift'] as const).map((slug) => ({
-          id: slug,
-          slug,
-          name: getCategoryLabel(slug),
-        }))
+        id: slug,
+        slug,
+        name: getCategoryLabel(slug),
+      }))
 
   const faqs = [
     { q: t('faq.q1'), a: t('faq.a1') },
@@ -460,7 +460,7 @@ export default function HomePage() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full sm:w-[400px] p-0 border-0">
-                  <div className="flex flex-col h-full bg-background">
+                  <div className="flex flex-col h-full bg-background" dir={dir}>
                     {/* Mobile Menu Header */}
                     <div className="flex items-center justify-between p-6 border-b border-border/50">
                       <Image
@@ -470,43 +470,104 @@ export default function HomePage() {
                         height={50}
                         className="h-10 w-auto"
                       />
+                      <SheetClose asChild>
+                        <Button variant="ghost" size="icon" className="rounded-full">
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </SheetClose>
                     </div>
 
-                    {/* Mobile Menu Content (no categories menu) */}
+                    {/* Mobile Menu Content */}
                     <div className="flex-1 overflow-y-auto p-6">
-                      <nav className="space-y-2" />
+                      <div className="space-y-8">
+                        {/* Search Bar in Menu */}
+                        <div className="relative">
+                          <SheetClose asChild>
+                            <Link href="/search" className="block">
+                              <div className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/50 border border-border/50 text-muted-foreground transition-all active:scale-[0.98]">
+                                <Search className="w-5 h-5" />
+                                <span>{t('nav.search')}...</span>
+                              </div>
+                            </Link>
+                          </SheetClose>
+                        </div>
 
-                      {/* Mobile Promo Card */}
-                      <div className="mt-8 p-5 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/20">
-                        <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-2">Limited Offer</span>
-                        <p className="font-medium text-foreground">
-                          {language === 'ar'
-                            ? (settings.promo_title_ar || settings.promo_title || "خصم ٢٠٪ على طلبك الأول")
-                            : (settings.promo_title || "20% off your first order")
-                          }
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {language === 'ar' ? "استخدم كود" : "Use code"} {settings.promo_code || "ARGAN20"}
-                        </p>
+                        {/* Categories Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-2">
+                            {t('header.categories')}
+                          </h3>
+                          <nav className="grid gap-2">
+                            <SheetClose asChild>
+                              <Link
+                                href="/#shop"
+                                onClick={() => setSelectedCategory("All")}
+                                className="flex items-center justify-between p-4 rounded-2xl hover:bg-primary/5 transition-all group active:scale-[0.98]"
+                              >
+                                <span className="font-medium text-lg">{t('section.all_categories')}</span>
+                                <ArrowRight className={`w-5 h-5 text-muted-foreground group-hover:text-primary transition-all ${dir === 'rtl' ? 'rotate-180' : ''}`} />
+                              </Link>
+                            </SheetClose>
+                            {headerCategories.map((cat) => (
+                              <SheetClose key={cat.id} asChild>
+                                <Link
+                                  href={`/#shop`}
+                                  onClick={() => setSelectedCategory(cat.slug)}
+                                  className="flex items-center justify-between p-4 rounded-2xl hover:bg-primary/5 transition-all group active:scale-[0.98]"
+                                >
+                                  <span className="font-medium text-lg">
+                                    {language === 'ar' && 'name_ar' in cat ? cat.name_ar : cat.name}
+                                  </span>
+                                  <ArrowRight className={`w-5 h-5 text-muted-foreground group-hover:text-primary transition-all ${dir === 'rtl' ? 'rotate-180' : ''}`} />
+                                </Link>
+                              </SheetClose>
+                            ))}
+                          </nav>
+                        </div>
+
+                        {/* Mobile Promo Card */}
+                        <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/20 border border-primary/10">
+                          <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-2">
+                            {language === 'ar' ? 'عرض خاص' : 'Special Offer'}
+                          </span>
+                          <p className="font-medium text-foreground">
+                            {language === 'ar'
+                              ? (settings.promo_title_ar || settings.promo_title || "خصم ٢٠٪ على طلبك الأول")
+                              : (settings.promo_title || "20% off your first order")
+                            }
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {language === 'ar' ? "استخدم كود" : "Use code"} <span className="font-bold text-primary">{settings.promo_code || "ARGAN20"}</span>
+                          </p>
+                        </div>
                       </div>
                     </div>
 
                     {/* Mobile Menu Footer */}
                     <div className="p-6 border-t border-border/50 space-y-3">
-                      <Button className="w-full rounded-full shadow-lg shadow-primary/20" asChild>
-                        <Link href="/#shop">Shop Now</Link>
-                      </Button>
-                      <Button variant="outline" className="w-full rounded-full bg-transparent">
-                        <Search className="w-4 h-4 mr-2" />
-                        Search
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full rounded-full bg-transparent border-primary/20 text-primary hover:bg-primary/5"
-                        onClick={toggleLanguage}
-                      >
-                        {language === 'en' ? 'العربية' : 'English'}
-                      </Button>
+                      <SheetClose asChild>
+                        <Button className="w-full h-12 rounded-full shadow-lg shadow-primary/20 text-lg font-semibold" asChild>
+                          <Link href="/#shop">{t('nav.shop_now')}</Link>
+                        </Button>
+                      </SheetClose>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <SheetClose asChild>
+                          <Link href="/search" className="w-full">
+                            <Button variant="outline" className="w-full h-12 rounded-full bg-secondary/30 border-border/50">
+                              <Search className="w-4 h-4 mx-2" />
+                              {t('nav.search')}
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                        <Button
+                          variant="outline"
+                          className="w-full h-12 rounded-full bg-secondary/30 border-border/50 font-bold"
+                          onClick={toggleLanguage}
+                        >
+                          {language === 'en' ? 'العربية' : 'English'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </SheetContent>
@@ -543,21 +604,24 @@ export default function HomePage() {
                 }
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                {/* Primary CTA → Search page */}
-                <Button asChild size="lg" className="rounded-full text-base px-8">
-                  <Link href="/search">
-                    {t('nav.search')}
+                {/* Primary CTA → Shop Section */}
+                <Button asChild size="lg" className="rounded-full text-base px-8 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                  <Link href="/#shop">
+                    {t('nav.shop_now')}
                   </Link>
                 </Button>
 
-                {/* Secondary CTA → Toggle language */}
+                {/* Secondary CTA → Search Page */}
                 <Button
+                  asChild
                   size="lg"
                   variant="outline"
-                  className="rounded-full text-base px-8 bg-transparent"
-                  onClick={toggleLanguage}
+                  className="rounded-full text-base px-8 bg-transparent border-primary/20 hover:bg-primary/5 hover:scale-105 active:scale-95 transition-all"
                 >
-                  {language === 'en' ? 'العربية' : 'English'}
+                  <Link href="/search">
+                    <Search className={`w-4 h-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                    {t('nav.search')}
+                  </Link>
                 </Button>
               </div>
               {/* Trust Badges */}

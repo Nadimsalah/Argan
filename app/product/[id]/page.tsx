@@ -66,10 +66,10 @@ export default function ProductPage() {
         <header className="sticky top-0 z-50 glass-strong py-3">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between">
-              <div className="w-32 h-10 bg-muted animate-pulse rounded-lg" />
+              <div className="w-32 h-10 bg-muted shimmer rounded-lg" />
               <div className="flex gap-2">
-                <div className="w-10 h-10 bg-muted animate-pulse rounded-full" />
-                <div className="w-10 h-10 bg-muted animate-pulse rounded-full" />
+                <div className="w-10 h-10 bg-muted shimmer rounded-full" />
+                <div className="w-10 h-10 bg-muted shimmer rounded-full" />
               </div>
             </div>
           </div>
